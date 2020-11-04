@@ -2,25 +2,20 @@
 -- Include
 --=========
 
-local lib_path = Lib.curPath()
-local lib_dep = Lib.curDepencies()
-
-local Class = lib_dep.Class or error('')
----@type UtilsLib
-local UtilsLib = lib_dep.Utils or error('')
+local Class = LibManager.getDepency('LuaClass')
+---@type Wc3Utils
+local UtilsLib = LibManager.getDepency('Wc3Utils')
+local Action = UtilsLib.Action or error()
 local ActionList = UtilsLib.ActionList or error()
 local isTypeErr = UtilsLib.isTypeErr or error('')
 local Log = UtilsLib.Log or error('')
 
----@type ParameterTypeModule
-local ParameterTypeModule = require(lib_path..'Type') or error('')
-local isParameterType = ParameterTypeModule.isParameterType or error('')
-local ParameterType = ParameterTypeModule.Enum or error('')
+---@type ParameterTypeClass
+local ParameterType = require('Type') or error('')
 ---@type ParameterValueClass
-local Value = require(lib_path..'Value') or error('')
----@type ParameterValueTypeModule
-local ValueTypeModule = require(lib_path..'ValueType') or error('')
-local isValueType = ValueTypeModule.isValueType or error('')
+local Value = require('Value') or error('')
+---@type ParameterValueTypeClass
+local ValueType = require('ValueType') or error('')
 
 --=======
 -- Class
@@ -58,13 +53,14 @@ end
 ---@param val number
 ---@return number
 function public:add(param, val_type, val)
-    if not isParameterType(param) then Log:err('variable \'param\' is not of type ParameterType.', 2) end
-    if not isValueType(val_type) then Log:err('variable \'val_type\' is not of type ValueType.', 2) end
+    isTypeErr(param, ParameterType, 'param')
+    isTypeErr(val_type, ValueType, 'val_type')
+    isTypeErr(val, 'number', 'val')
     local priv = private.data[self]
 
     local res = priv.values[param]:add(val_type, val)
-    local min = ParameterTypeModule.getMin(param)
-    local max = ParameterTypeModule.getMax(param)
+    local min = param:getMin()
+    local max = param:getMax()
 
     res = res < min and min or res
     res = res > max and max or res
@@ -78,20 +74,20 @@ end
 ---@param val_type ParameterValueType
 ---@return number
 function public:get(param, val_type)
-    if not isParameterType(param) then Log:err('variable \'param\' is not of type ParameterType.', 2) end
-    if not isValueType(val_type) then Log:err('variable \'val_type\' is not of type ValueType.', 2) end
+    isTypeErr(param, ParameterType, 'param')
+    isTypeErr(val_type, ValueType, 'val_type')
     return private.data[self].values[param]:get(val_type)
 end
 
 ---@param param ParameterType
 ---@return number
 function public:getResult(param)
-    if not isParameterType(param) then Log:err('variable \'param\' is not of type ParameterType.', 2) end
+    isTypeErr(param, ParameterType, 'param')
     local priv = private.data[self]
 
     local res = priv.values[param]:getResult()
-    local min = ParameterTypeModule.getMin(param)
-    local max = ParameterTypeModule.getMax(param)
+    local min = param:getMin()
+    local max = param:getMax()
 
     res = res < min and min or res
     res = res > max and max or res
@@ -104,12 +100,14 @@ end
 ---@param callback ParameterChangedCallback
 ---@return Action
 function public:addChangedAction(callback)
+    isTypeErr(callback, 'function', 'callback')
     return private.data[self].actions:add(callback)
 end
 
 ---@param action Action
 ---@return boolean
 function public:removeAction(action)
+    isTypeErr(action, Action, 'action')
     return private.data[self].actions:remove(action)
 end
 
@@ -127,7 +125,7 @@ function private.newData(self)
     }
     private.data[self] = priv
 
-    for _, param in pairs(ParameterType) do
+    for name, param in pairs(ParameterType.enum) do
         priv.values[param] = Value.new()
     end
 end
