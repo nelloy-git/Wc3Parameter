@@ -2,20 +2,14 @@
 -- Include
 --=========
 
-local lib_path = Lib.curPath()
-local lib_dep = Lib.curDepencies()
+local Class = LibManager.getDepency('LuaClass') or error('')
+---@type Wc3Utils
+local Wc3Utils = LibManager.getDepency('Wc3Utils') or error('')
+local isTypeErr = Wc3Utils.isTypeErr or error('')
+local Log = Wc3Utils.Log or error('')
 
-local Class = lib_dep.Class or error('')
----@type UtilsLib
-local UtilsLib = lib_dep.Utils or error('')
-local Log = UtilsLib.Log or error('')
-
----@type ParameterValueTypeModule
-local ValueTypeModule = require(lib_path..'ValueType') or error('')
-local getDefault = ValueTypeModule.getDefault or error('')
-local isValueType = ValueTypeModule.isValueType or error('')
-local ValueType = ValueTypeModule.Enum or error('')
-local ValueRes = ValueTypeModule.getResult or error('')
+---@type ParameterValueTypeClass
+local ValueType = require('ValueType') or error('')
 
 --=======
 -- Class
@@ -49,11 +43,12 @@ end
 ---@param val_type ParameterValueType
 ---@param val number
 function public:add(val_type, val)
-    if not isValueType(val_type) then Log:err('variable \'val_type\' is not of type ValueType.', 2) end
+    isTypeErr(val_type, ValueType, 'val_type')
+    isTypeErr(val, 'number', 'val')
     local priv = private.data[self]
 
     priv.list[val_type] = priv.list[val_type] + val
-    priv.res = ValueRes(priv.list)
+    priv.res = ValueType.getResult(priv.list)
 
     return priv.res
 end
@@ -61,7 +56,7 @@ end
 ---@param val_type ParameterValueType
 ---@return number
 function public:get(val_type)
-    if not isValueType(val_type) then Log:err('variable \'val_type\' is not of type ValueType.', 2) end
+    isTypeErr(val_type, ValueType, 'val_type')
     return private.data[self].list[val_type]
 end
 
@@ -79,14 +74,9 @@ private.data = setmetatable({}, {__mode = 'k'})
 ---@param self ParameterValue
 function private.newData(self)
     local priv = {
-        list = {},
-        res = 1,
+        list = ValueType.newList(),
+        res = 0,
     }
-
-    for _, val_type in pairs(ValueType) do
-        priv.list[val_type] = getDefault(val_type)
-    end
-
     private.data[self] = priv
 end
 

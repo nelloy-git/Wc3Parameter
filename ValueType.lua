@@ -2,63 +2,63 @@
 -- Include
 --=========
 
-local lib_path = Lib.curPath()
-local lib_dep = Lib.curDepencies()
+local Class = LibManager.getDepency('LuaClass')
 
-local UtilsLib = lib_dep.Utils or error('')
-local getEnum = UtilsLib.getEnum or error('')
-local Log = UtilsLib.Log
+--=======
+-- Class
+--=======
+
+local ParameterValueType = Class.new('ParameterValueType')
+---@class ParameterValueType
+local public = ParameterValueType.public
+---@class ParameterValueTypeClass
+local static = ParameterValueType.static
+---@type ParameterValueTypeClass
+local override = ParameterValueType.override
+local private = {}
 
 --========
--- Module
+-- Static
 --========
 
----@class ParameterValueTypeModule
-local ValueType = {}
-
----@alias ParameterValueType number
-ValueType.Enum = {
+override.enum = {
     ---@type ParameterValueType
-    BASE = getEnum(),
+    BASE = Class.allocate(ParameterValueType),
     ---@type ParameterValueType
-    MULT = getEnum(),
+    MULT = Class.allocate(ParameterValueType),
     ---@type ParameterValueType
-    ADDIT = getEnum(),
+    ADDIT = Class.allocate(ParameterValueType),
 }
 
----@param var any
----@return boolean
-function ValueType.isValueType(var)
-    for k, v in pairs(ValueType.Enum) do
-        if var == v then
-            return true
-        end
+---@return table<ParameterValueType, number>
+function override.newList()
+    local list = {}
+    for name, value_type in pairs(static.enum) do
+        list[value_type] = private.default[value_type]
     end
-    return false
 end
 
 ---@param list table<ParameterValueType, number>
 ---@return number
-function ValueType.getResult(list)
-    local base = list[ValueType.Enum.BASE]
-    local mult = list[ValueType.Enum.MULT]
-    local addit = list[ValueType.Enum.ADDIT]
+function override.getResult(list)
+    local base = list[static.enum.BASE]
+    local mult = list[static.enum.MULT]
+    local addit = list[static.enum.ADDIT]
     return base * mult + addit
 end
 
-local default = {
-    [ValueType.Enum.BASE] = 0,
-    [ValueType.Enum.MULT] = 1,
-    [ValueType.Enum.ADDIT] = 0,
+--========
+-- Public
+--========
+
+--=========
+-- Private
+--=========
+
+private.default = {
+    [static.enum.BASE] = 0,
+    [static.enum.MULT] = 1,
+    [static.enum.ADDIT] = 0,
 }
 
----@param val_type ParameterValueType
-function ValueType.getDefault(val_type)
-    local def = default[val_type]
-    if not def then
-        Log:err('Unknown ParameterValueType', 2)
-    end
-    return def
-end
-
-return ValueType
+return static

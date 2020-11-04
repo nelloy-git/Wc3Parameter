@@ -1,36 +1,37 @@
----@class ParameterLib
-local ParameterLibAPI = {}
-Lib.start('ParameterLib', {
-    Asset = Lib.load(LibList.AssetLib) or error(''),
-    Class = Lib.load(LibList.ClassLib) or error(''),
-    Damage = Lib.load(LibList.DamageLib) or error(''),
-    Handle = Lib.load(LibList.HandleLib) or error(''),
-    Types = Lib.load(LibList.TypesLib) or error(''),
-    Utils = Lib.load(LibList.UtilsLib) or error(''),
-})
-local path = Lib.curPath()
+LibManager.startLib('Wc3Parameter')
+
+--===========
+-- Depencies
+--===========
+
+LibManager.addDepency('LuaClass', 'https://github.com/nelloy-git/LuaClass.git')
+--LibManager.addDepency('Wc3Damage', 'https://github.com/nelloy-git/Wc3Damage.git')
+LibManager.addDepency('Wc3Utils', 'https://github.com/nelloy-git/Wc3Utils.git')
 
 --=====
 -- API
 --=====
 
+---@class Wc3Parameter
+local Wc3Parameter = {}
+
 ---@type ParameterTypeModule
-local ParameterTypeModule = require(path..'Type') or error('')
-ParameterLibAPI.ParamType = ParameterTypeModule.Enum or error('')
-ParameterLibAPI.paramToStr = ParameterTypeModule.toStr or error('')
-ParameterLibAPI.paramToColor = ParameterTypeModule.toColor or error('')
+local ParameterTypeModule = require('Type') or error('')
+Wc3Parameter.ParamType = ParameterTypeModule.Enum or error('')
+Wc3Parameter.paramToStr = ParameterTypeModule.toStr or error('')
+Wc3Parameter.paramToColor = ParameterTypeModule.toColor or error('')
 ---@type ParameterValueTypeModule
-local ParameterValueTypeModule = require(path..'ValueType') or error('')
-ParameterLibAPI.ValueType = ParameterValueTypeModule.Enum
+local ParameterValueTypeModule = require('ValueType') or error('')
+Wc3Parameter.ValueType = ParameterValueTypeModule.Enum
 
 ---@type ParameterContainerClass
-ParameterLibAPI.Container = require(path..'Container') or error('')
+Wc3Parameter.Container = require('Container') or error('')
 ---@type ParameterContainerUnitClass
-ParameterLibAPI.UnitContainer = require(path..'Container.Unit') or error('')
+Wc3Parameter.UnitContainer = require('Container.Unit') or error('')
 
 ---@type ParameterDamageEvent
-local DamageEvent = require(path..'Damage')
+local DamageEvent = require('Damage')
 
 Lib.finish()
 
-return ParameterLibAPI
+return Wc3Parameter
