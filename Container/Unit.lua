@@ -3,6 +3,9 @@
 --=========
 
 local Class = LibManager.getDepency('LuaClass')
+---@type Wc3Handle
+local Wc3Handle = LibManager.getDepency('Wc3Handle')
+local Unit = Wc3Handle.Unit
 ---@type Wc3Utils
 local UtilsLib = LibManager.getDepency('Wc3Utils')
 local isTypeErr = UtilsLib.isTypeErr or error('')
@@ -35,11 +38,11 @@ local private = {}
 -- Static
 --=========
 
----@param owner unit
+---@param owner Unit
 ---@param child ParameterContainerUnit | nil
 ---@return ParameterContainerUnit
 function override.new(owner, child)
-    isTypeErr(owner, 'unit', 'owner')
+    isTypeErr(owner, Unit, 'owner')
     if child then isTypeErr(child, ParameterContainerUnit, 'child') end
 
     if private.unit2container[owner] then
@@ -54,7 +57,7 @@ function override.new(owner, child)
     return instance
 end
 
----@param owner unit
+---@param owner Unit
 ---@return ParameterContainerUnit | nil
 function static.get(owner)
     return private.unit2container[owner]
@@ -92,7 +95,7 @@ private.data = setmetatable({}, {__mode = 'k'})
 private.unit2container = setmetatable({}, {__mode = 'k'})
 
 ---@param self ParameterContainerUnit
----@param owner unit
+---@param owner Unit
 function private.newData(self, owner)
     local priv = {
         owner = owner
@@ -103,42 +106,42 @@ end
 
 private.apply_func = {
     [ParameterType.enum.PATK] = function(unit, value)
-        BlzSetUnitBaseDamage(unit, math.floor((1 - 0.5 * Settings.PAtkDispersion) * value), 0)
-        BlzSetUnitDiceNumber(unit, 1, 0)
-        BlzSetUnitDiceSides(unit, math.floor(Settings.PAtkDispersion * value + 1), 0)
+        BlzSetUnitBaseDamage(unit:getData(), math.floor((1 - 0.5 * Settings.PAtkDispersion) * value), 0)
+        BlzSetUnitDiceNumber(unit:getData(), 1, 0)
+        BlzSetUnitDiceSides(unit:getData(), math.floor(Settings.PAtkDispersion * value + 1), 0)
     end,
 
     [ParameterType.enum.PSPD] = function(unit, value)
-        BlzSetUnitAttackCooldown(unit, 1 / value, 0)
+        BlzSetUnitAttackCooldown(unit:getData(), 1 / value, 0)
     end,
 
     [ParameterType.enum.LIFE] = function(unit, value)
         local percent_hp = GetUnitLifePercent(unit)
-        BlzSetUnitMaxHP(unit, math.floor(value))
-        SetUnitState(unit, UNIT_STATE_LIFE, GetUnitState(unit, UNIT_STATE_MAX_LIFE) * percent_hp * 0.01)
+        BlzSetUnitMaxHP(unit:getData(), math.floor(value))
+        SetUnitState(unit:getData(), UNIT_STATE_LIFE, GetUnitState(unit, UNIT_STATE_MAX_LIFE) * percent_hp * 0.01)
     end,
 
     [ParameterType.enum.REGE] = function(unit, value)
-        BlzSetUnitRealField(unit, UNIT_RF_HIT_POINTS_REGENERATION_RATE, value)
+        BlzSetUnitRealField(unit:getData(), UNIT_RF_HIT_POINTS_REGENERATION_RATE, value)
     end,
 
     [ParameterType.enum.MANA] = function(unit, value)
         local percent_mana = GetUnitManaPercent(unit)
-        BlzSetUnitMaxMana(unit, math.floor(value))
-        SetUnitState(unit, UNIT_STATE_MANA, GetUnitState(unit, UNIT_STATE_MAX_MANA) * percent_mana * 0.01)
+        BlzSetUnitMaxMana(unit:getData(), math.floor(value))
+        SetUnitState(unit:getData(), UNIT_STATE_MANA, GetUnitState(unit, UNIT_STATE_MAX_MANA) * percent_mana * 0.01)
     end,
 
     [ParameterType.enum.RECO] = function(unit, value)
-        BlzSetUnitRealField(unit, UNIT_RF_MANA_REGENERATION, value)
+        BlzSetUnitRealField(unit:getData(), UNIT_RF_MANA_REGENERATION, value)
     end,
 
     [ParameterType.enum.MOVE] = function(unit, value)
         if value <= 1 then
-            SetUnitTurnSpeed(unit, 0)
+            SetUnitTurnSpeed(unit:getData(), 0)
         else
-            SetUnitTurnSpeed(unit, GetUnitDefaultTurnSpeed(unit))
+            SetUnitTurnSpeed(unit:getData(), GetUnitDefaultTurnSpeed(unit))
         end
-        SetUnitMoveSpeed(unit, value)
+        SetUnitMoveSpeed(unit:getData(), value)
     end,
 }
 
