@@ -6,7 +6,6 @@ local Class = LibManager.getDepency('LuaClass') or error('')
 ---@type Wc3Utils
 local Wc3Utils = LibManager.getDepency('Wc3Utils') or error('')
 local isTypeErr = Wc3Utils.isTypeErr or error('')
-local Log = Wc3Utils.Log or error('')
 
 ---@type ParameterValueTypeClass
 local ValueType = require('ValueType') or error('')
@@ -28,9 +27,12 @@ local private = {}
 -- Static
 --========
 
+---@param child ParameterValue | nil
 ---@return ParameterValue
-function override.new()
-    local instance = Class.allocate(ParameterValue)
+function override.new(child)
+    isTypeErr(child, {'nil', ParameterValue}, 'child')
+
+    local instance = child or Class.allocate(ParameterValue)
     private.newData(instance)
 
     return instance
@@ -43,26 +45,23 @@ end
 ---@param val_type ParameterValueType
 ---@param val number
 function public:add(val_type, val)
+    isTypeErr(self, ParameterValue, 'self')
     isTypeErr(val_type, ValueType, 'val_type')
     isTypeErr(val, 'number', 'val')
     local priv = private.data[self]
 
     priv.list[val_type] = priv.list[val_type] + val
-    priv.res = ValueType.getResult(priv.list)
 
-    return priv.res
+    return ValueType.math(priv.list)
 end
 
 ---@param val_type ParameterValueType
 ---@return number
 function public:get(val_type)
+    isTypeErr(self, ParameterValue, 'self')
     isTypeErr(val_type, ValueType, 'val_type')
-    return private.data[self].list[val_type]
-end
 
----@return number
-function public:getResult()
-    return private.data[self].res
+    return private.data[self].list[val_type]
 end
 
 --=========
@@ -75,7 +74,6 @@ private.data = setmetatable({}, {__mode = 'k'})
 function private.newData(self)
     local priv = {
         list = ValueType.newList(),
-        res = 0,
     }
     private.data[self] = priv
 end

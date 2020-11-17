@@ -28,6 +28,8 @@ override.enum = {
     MULT = Class.allocate(ParameterValueType),
     ---@type ParameterValueType
     ADDIT = Class.allocate(ParameterValueType),
+    ---@type ParameterValueType
+    RES = Class.allocate(ParameterValueType),
 }
 
 ---@return table<ParameterValueType, number>
@@ -36,15 +38,17 @@ function override.newList()
     for name, value_type in pairs(static.enum) do
         list[value_type] = private.default[value_type]
     end
+    return list
 end
 
 ---@param list table<ParameterValueType, number>
 ---@return number
-function override.getResult(list)
+function override.math(list)
     local base = list[static.enum.BASE]
     local mult = list[static.enum.MULT]
     local addit = list[static.enum.ADDIT]
-    return base * mult + addit
+    list[static.enum.RES] = base * mult + addit
+    return list[static.enum.RES]
 end
 
 --========
@@ -59,6 +63,7 @@ private.default = {
     [static.enum.BASE] = 0,
     [static.enum.MULT] = 1,
     [static.enum.ADDIT] = 0,
+    [static.enum.RES] = 0,
 }
 
 return static

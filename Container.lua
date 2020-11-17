@@ -8,7 +8,6 @@ local UtilsLib = LibManager.getDepency('Wc3Utils')
 local Action = UtilsLib.Action or error()
 local ActionList = UtilsLib.ActionList or error()
 local isTypeErr = UtilsLib.isTypeErr or error('')
-local Log = UtilsLib.Log or error('')
 
 ---@type ParameterTypeClass
 local ParameterType = require('Type') or error('')
@@ -36,7 +35,7 @@ local private = {}
 
 ---@return ParameterContainer
 function override.new(child)
-    if child then isTypeErr(child, ParameterContainer, 'child') end
+    isTypeErr(child, {'nil', ParameterContainer}, 'child')
 
     local instance = child or Class.allocate(ParameterContainer)
     private.newData(instance)
@@ -53,6 +52,7 @@ end
 ---@param val number
 ---@return number
 function public:add(param, val_type, val)
+    isTypeErr(self, ParameterContainer, 'self')
     isTypeErr(param, ParameterType, 'param')
     isTypeErr(val_type, ValueType, 'val_type')
     isTypeErr(val, 'number', 'val')
@@ -74,23 +74,19 @@ end
 ---@param val_type ParameterValueType
 ---@return number
 function public:get(param, val_type)
+    isTypeErr(self, ParameterContainer, 'self')
     isTypeErr(param, ParameterType, 'param')
     isTypeErr(val_type, ValueType, 'val_type')
-    return private.data[self].values[param]:get(val_type)
-end
-
----@param param ParameterType
----@return number
-function public:getResult(param)
-    isTypeErr(param, ParameterType, 'param')
     local priv = private.data[self]
 
-    local res = priv.values[param]:getResult()
-    local min = param:getMin()
-    local max = param:getMax()
+    local res = priv.values[param]:get(val_type)
+    if val_type == ValueType.enum.RES then
+        local min = param:getMin()
+        local max = param:getMax()
 
-    res = res < min and min or res
-    res = res > max and max or res
+        res = res < min and min or res
+        res = res > max and max or res
+    end
 
     return res
 end
@@ -100,6 +96,7 @@ end
 ---@param callback ParameterChangedCallback
 ---@return Action
 function public:addChangedAction(callback)
+    isTypeErr(self, ParameterContainer, 'self')
     isTypeErr(callback, 'function', 'callback')
     return private.data[self].actions:add(callback)
 end
@@ -107,6 +104,7 @@ end
 ---@param action Action
 ---@return boolean
 function public:removeAction(action)
+    isTypeErr(self, ParameterContainer, 'self')
     isTypeErr(action, Action, 'action')
     return private.data[self].actions:remove(action)
 end
